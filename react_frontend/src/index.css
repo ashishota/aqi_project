@@ -161,3 +161,63 @@ h1 {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+/* ──────────────────────────────────────────────
+   Chart Layout & Styling
+   ────────────────────────────────────────────── */
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (min-width: 900px) {
+  .app-container {
+    max-width: 1000px;
+  }
+  .main-content {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .form-section {
+    flex: 1;
+    min-width: 350px;
+  }
+  .chart-section {
+    flex: 1.5;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+}
+
+.chart-title {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #cccccc;
+  margin-bottom: 1.5rem;
+  margin-top: 0;
+}
+
+.custom-tooltip {
+  background: rgba(20, 20, 30, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  backdrop-filter: blur(5px);
+}
+
+.custom-tooltip .label {
+  margin: 0 0 5px 0;
+  color: #aaaaaa;
+  font-weight: bold;
+}
+
+.custom-tooltip .intro {
+  margin: 0;
+  color: #42a5f5;
+  font-weight: bold;
+  font-size: 1.2rem;
+}
