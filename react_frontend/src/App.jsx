@@ -232,7 +232,7 @@ function App() {
         {historyData.length > 0 && (
           <div className="chart-section">
             <h2 className="chart-title">Historical Training Data ({formData.city})</h2>
-            <p className="chart-subtitle">Showing the final 6 months of the model's dataset</p>
+            <p className="chart-subtitle">Showing the final 1 year of the model's dataset</p>
             
             <div className="chart-controls">
               <label htmlFor="chartMetric">View Metric:</label>
@@ -252,7 +252,7 @@ function App() {
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={historyData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="date" stroke="#aaaaaa" tick={{fontSize: 12}} minTickGap={30} />
+                  <XAxis dataKey="date" stroke="#aaaaaa" tick={{fontSize: 12}} minTickGap={60} />
                   <YAxis stroke="#aaaaaa" tick={{fontSize: 12}} domain={['auto', 'auto']} />
                   <Tooltip content={<CustomTooltip />} />
                   <Line 
