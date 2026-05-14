@@ -42,6 +42,9 @@ function App() {
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
   const [historyData, setHistoryData] = useState([])
+  const [selectedChartMetric, setSelectedChartMetric] = useState('AQI')
+
+  const chartMetrics = ['AQI', 'PM25', 'PM10', 'NO2', 'SO2', 'NH3', 'CO', 'O3']
 
   const fetchHistory = async (city) => {
     try {
@@ -104,7 +107,7 @@ function App() {
       return (
         <div className="custom-tooltip">
           <p className="label">{`${label}`}</p>
-          <p className="intro">{`AQI : ${payload[0].value}`}</p>
+          <p className="intro">{`${selectedChartMetric} : ${payload[0].value}`}</p>
         </div>
       );
     }
@@ -193,6 +196,21 @@ function App() {
           <div className="chart-section">
             <h2 className="chart-title">Historical Training Data ({formData.city})</h2>
             <p className="chart-subtitle">Showing the final 30 days of the model's dataset</p>
+            
+            <div className="chart-controls">
+              <label htmlFor="chartMetric">View Metric:</label>
+              <select 
+                id="chartMetric" 
+                value={selectedChartMetric} 
+                onChange={(e) => setSelectedChartMetric(e.target.value)}
+                className="metric-select"
+              >
+                {chartMetrics.map(metric => (
+                  <option key={metric} value={metric}>{metric}</option>
+                ))}
+              </select>
+            </div>
+
             <div className="chart-container">
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={historyData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
@@ -202,7 +220,7 @@ function App() {
                   <Tooltip content={<CustomTooltip />} />
                   <Line 
                     type="monotone" 
-                    dataKey="aqi" 
+                    dataKey={selectedChartMetric} 
                     stroke="#42a5f5" 
                     strokeWidth={3}
                     dot={{ fill: '#7e57c2', strokeWidth: 2, r: 4 }}
