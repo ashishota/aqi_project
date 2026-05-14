@@ -5,6 +5,25 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 // Update this to 'http://localhost:5000' for local testing before pushing
 const API_BASE_URL = 'https://aqi-backend-api-q9as.onrender.com'
 
+const getHealthRecommendation = (category) => {
+  switch(category) {
+    case 'Good':
+      return { icon: '🟢', text: 'Air quality is satisfactory. Enjoy your normal outdoor activities.' };
+    case 'Satisfactory':
+      return { icon: '🟡', text: 'Air quality is acceptable. Unusually sensitive individuals should limit prolonged outdoor exertion.' };
+    case 'Moderate':
+      return { icon: '🟠', text: 'May cause breathing discomfort to sensitive people. Reduce prolonged outdoor exertion.' };
+    case 'Poor':
+      return { icon: '🔴', text: 'May cause breathing discomfort to most people. Avoid strenuous outdoor activities.' };
+    case 'Very Poor':
+      return { icon: '😷', text: 'Health alert: Respiratory illness possible. Stay indoors and keep windows closed.' };
+    case 'Severe':
+      return { icon: '🛑', text: 'Health warning! Everyone should avoid all outdoor activities. Wear an N95 mask if outdoors.' };
+    default:
+      return { icon: 'ℹ️', text: 'No recommendation available.' };
+  }
+}
+
 function App() {
   const [cities, setCities] = useState([])
   const [formData, setFormData] = useState({
@@ -162,13 +181,18 @@ function App() {
               >
                 {result.category}
               </div>
+              <div className="health-recommendation">
+                <span className="health-icon">{getHealthRecommendation(result.category).icon}</span>
+                <p className="health-text">{getHealthRecommendation(result.category).text}</p>
+              </div>
             </div>
           )}
         </div>
 
         {historyData.length > 0 && (
           <div className="chart-section">
-            <h2 className="chart-title">Last 30 Days Trend ({formData.city})</h2>
+            <h2 className="chart-title">Historical Training Data ({formData.city})</h2>
+            <p className="chart-subtitle">Showing the final 30 days of the model's dataset</p>
             <div className="chart-container">
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={historyData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>

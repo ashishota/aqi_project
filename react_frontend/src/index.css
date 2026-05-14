@@ -221,3 +221,35 @@ h1 {
   font-weight: bold;
   font-size: 1.2rem;
 }
+
+.chart-subtitle {
+  text-align: center;
+  color: #888888;
+  font-size: 0.9rem;
+  margin-top: -1rem;
+  margin-bottom: 1.5rem;
+  font-style: italic;
+}
+
+.health-recommendation {
+  margin-top: 2rem;
+  padding: 1.2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border-left: 4px solid #42a5f5;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  text-align: left;
+}
+
+.health-icon {
+  font-size: 2.5rem;
+}
+
+.health-text {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #dddddd;
+  line-height: 1.5;
+}
