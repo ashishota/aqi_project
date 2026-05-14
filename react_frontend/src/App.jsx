@@ -21,7 +21,7 @@ function App() {
 
   useEffect(() => {
     // Fetch available cities
-    axios.get('http://localhost:5000/api/cities')
+    axios.get('https://aqi-backend-api-q9as.onrender.com/api/cities')
       .then(response => {
         if (response.data.cities && response.data.cities.length > 0) {
           setCities(response.data.cities)
@@ -49,7 +49,7 @@ function App() {
     setResult(null)
 
     try {
-      const response = await axios.post('http://localhost:5000/api/predict', formData)
+      const response = await axios.post('https://aqi-backend-api-q9as.onrender.com/api/predict', formData)
       setResult(response.data)
     } catch (err) {
       setError(err.response?.data?.error || "An error occurred during prediction.")
