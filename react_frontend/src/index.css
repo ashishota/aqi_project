@@ -282,3 +282,59 @@ h1 {
 .metric-select:focus {
   border-color: #42a5f5;
 }
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.button-group .submit-btn {
+  margin-top: 0;
+  flex: 2;
+}
+
+.autofill-btn {
+  flex: 1.2;
+  padding: 1rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #eeeeee;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.autofill-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.autofill-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.result-badges {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.result-badges .result-category {
+  margin-top: 0;
+}
+
+.primary-pollutant-badge {
+  padding: 0.6rem 1.2rem;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 0.95rem;
+  border: 1px solid rgba(255,255,255,0.3);
+  backdrop-filter: blur(5px);
+}

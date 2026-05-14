@@ -85,6 +85,31 @@ function App() {
     }
   }
 
+  const handleAutoFill = () => {
+    if (historyData.length > 0) {
+      const randomIdx = Math.floor(Math.random() * historyData.length);
+      const sample = historyData[randomIdx];
+      
+      setFormData(prev => ({
+        ...prev,
+        PM25: sample.PM25 || prev.PM25,
+        PM10: sample.PM10 || prev.PM10,
+        NO2: sample.NO2 || prev.NO2,
+        SO2: sample.SO2 || prev.SO2,
+        NH3: sample.NH3 || prev.NH3,
+        CO: sample.CO || prev.CO,
+        O3: sample.O3 || prev.O3,
+        previous_aqi: sample.aqi || prev.previous_aqi
+      }));
+    }
+  }
+
+  const getPrimaryPollutant = () => {
+    // Basic heuristic: finding the highest concentration (excluding CO which is scaled differently)
+    const pollutants = ['PM25', 'PM10', 'NO2', 'SO2', 'NH3', 'O3'];
+    return pollutants.reduce((max, p) => formData[p] > formData[max] ? p : max, 'PM25');
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
@@ -169,21 +194,33 @@ function App() {
               </div>
             </div>
 
-            <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? "Predicting..." : "Predict AQI"}
-            </button>
+            <div className="button-group">
+              <button type="button" className="autofill-btn" onClick={handleAutoFill} disabled={historyData.length === 0} title="Load real historical data from this city">
+                🪄 Load Sample Data
+              </button>
+              <button type="submit" className="submit-btn" disabled={loading}>
+                {loading ? "Predicting..." : "Predict AQI"}
+              </button>
+            </div>
           </form>
 
           {result && (
             <div className="result-container">
               <div className="result-title">Predicted Air Quality Index</div>
               <div className="result-aqi">{result.predicted_aqi}</div>
-              <div 
-                className="result-category" 
-                style={{ backgroundColor: result.color }}
-              >
-                {result.category}
+              
+              <div className="result-badges">
+                <div 
+                  className="result-category" 
+                  style={{ backgroundColor: result.color }}
+                >
+                  {result.category}
+                </div>
+                <div className="primary-pollutant-badge" title="The highest concentrated pollutant currently">
+                  Dominant: {getPrimaryPollutant()}
+                </div>
               </div>
+
               <div className="health-recommendation">
                 <span className="health-icon">{getHealthRecommendation(result.category).icon}</span>
                 <p className="health-text">{getHealthRecommendation(result.category).text}</p>
