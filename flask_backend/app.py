@@ -160,13 +160,22 @@ def get_history():
             return jsonify({"error": f"Data file not found for {city}"}), 404
             
         df = pd.read_csv(csv_path)
-        last_30 = df.tail(30)[['Timestamp', 'AQI']]
+        
+        # Columns to extract for history
+        cols_to_extract = ['Timestamp', 'AQI'] + BASE_FEATURES
+        
+        last_30 = df.tail(30)[cols_to_extract]
         last_30['Timestamp'] = pd.to_datetime(last_30['Timestamp']).dt.strftime('%b %d')
         
-        # Round AQI for cleaner display
+        # Round values for cleaner display
         last_30['AQI'] = last_30['AQI'].round(0)
+        for feature in BASE_FEATURES:
+            last_30[feature] = last_30[feature].round(1)
         
-        history_data = last_30.rename(columns={'Timestamp': 'date', 'AQI': 'aqi'}).to_dict(orient='records')
+        # Rename Timestamp to date for Recharts
+        last_30 = last_30.rename(columns={'Timestamp': 'date'})
+        
+        history_data = last_30.to_dict(orient='records')
         
         return jsonify({"history": history_data})
     except Exception as e:
