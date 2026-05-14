@@ -104,7 +104,7 @@ function App() {
               name="previous_aqi"
               value={formData.previous_aqi}
               onChange={handleChange}
-              step="1"
+              step="0.1"
               min="0"
               required
             />
