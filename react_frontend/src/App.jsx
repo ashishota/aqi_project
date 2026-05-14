@@ -99,7 +99,7 @@ function App() {
         NH3: sample.NH3 || prev.NH3,
         CO: sample.CO || prev.CO,
         O3: sample.O3 || prev.O3,
-        previous_aqi: sample.aqi || prev.previous_aqi
+        previous_aqi: sample.AQI || prev.previous_aqi
       }));
     }
   }
