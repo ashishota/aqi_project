@@ -164,19 +164,19 @@ def get_history():
         # Columns to extract for history
         cols_to_extract = ['Timestamp', 'AQI'] + BASE_FEATURES
         
-        # 6 months of data ~ 180 days
-        last_180 = df.tail(180)[cols_to_extract]
-        last_180['Timestamp'] = pd.to_datetime(last_180['Timestamp']).dt.strftime('%b %d')
+        # 1 year of data ~ 365 days
+        last_365 = df.tail(365)[cols_to_extract]
+        last_365['Timestamp'] = pd.to_datetime(last_365['Timestamp']).dt.strftime('%b %d, %Y')
         
         # Round values for cleaner display
-        last_180['AQI'] = last_180['AQI'].round(0)
+        last_365['AQI'] = last_365['AQI'].round(0)
         for feature in BASE_FEATURES:
-            last_180[feature] = last_180[feature].round(1)
+            last_365[feature] = last_365[feature].round(1)
         
         # Rename Timestamp to date for Recharts
-        last_180 = last_180.rename(columns={'Timestamp': 'date'})
+        last_365 = last_365.rename(columns={'Timestamp': 'date'})
         
-        history_data = last_180.to_dict(orient='records')
+        history_data = last_365.to_dict(orient='records')
         
         return jsonify({"history": history_data})
     except Exception as e:
