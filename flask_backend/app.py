@@ -25,6 +25,20 @@ MODEL_REGISTRY = {
 }
 
 # ──────────────────────────────────────────────
+# Data Registry (for historical charts)
+# ──────────────────────────────────────────────
+CSV_DIR = os.path.join(os.path.dirname(__file__), 'data')
+
+DATA_REGISTRY = {
+    "Delhi": os.path.join(CSV_DIR, "AnandVihar_AQI_daily_clean.csv"),
+    "Chennai": os.path.join(CSV_DIR, "Kodungaiyur_AQI_daily_clean.csv"),
+    "Bangalore": os.path.join(CSV_DIR, "Jayanagar_AQI_daily_clean.csv"),
+    "Bhubaneswar": os.path.join(CSV_DIR, "Patia_AQI_daily_clean.csv"),
+    "Guwahati": os.path.join(CSV_DIR, "IITG_AQI_daily_clean.csv"),
+    "Mumbai": os.path.join(CSV_DIR, "Colaba_AQI_daily_clean.csv")
+}
+
+# ──────────────────────────────────────────────
 # Features List
 # ──────────────────────────────────────────────
 BASE_FEATURES = ["PM25", "PM10", "NO2", "SO2", "NH3", "CO", "O3"]
@@ -131,6 +145,30 @@ def predict():
             "color": color
         })
 
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/history', methods=['GET'])
+def get_history():
+    try:
+        city = request.args.get('city')
+        if not city or city not in DATA_REGISTRY:
+            return jsonify({"error": "Valid city required."}), 400
+            
+        csv_path = DATA_REGISTRY[city]
+        if not os.path.exists(csv_path):
+            return jsonify({"error": f"Data file not found for {city}"}), 404
+            
+        df = pd.read_csv(csv_path)
+        last_30 = df.tail(30)[['Timestamp', 'AQI']]
+        last_30['Timestamp'] = pd.to_datetime(last_30['Timestamp']).dt.strftime('%b %d')
+        
+        # Round AQI for cleaner display
+        last_30['AQI'] = last_30['AQI'].round(0)
+        
+        history_data = last_30.rename(columns={'Timestamp': 'date', 'AQI': 'aqi'}).to_dict(orient='records')
+        
+        return jsonify({"history": history_data})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
