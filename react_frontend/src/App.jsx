@@ -3,7 +3,7 @@ import axios from 'axios'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 // Update this to 'http://localhost:5000' for local testing before pushing
-const API_BASE_URL = 'https://aqi-backend-api-q9as.onrender.com'
+const API_BASE_URL = 'http://localhost:5000'
 
 const getHealthRecommendation = (category) => {
   switch(category) {
