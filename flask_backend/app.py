@@ -70,12 +70,15 @@ def parse_number(s):
     m = re.search(r'\d+', s)
     return int(m.group()) if m else 0
 
-def build_features(df, base_inputs, features_in):
+def build_features(df, base_inputs, features_in, target_time=None):
+    if target_time is None:
+        target_time = pd.to_datetime('now')
+        
     new_row = df.iloc[-1].copy()
     for k, v in base_inputs.items():
         if k in new_row:
             new_row[k] = v
-    new_row['Timestamp'] = pd.to_datetime('now')
+    new_row['Timestamp'] = target_time
     df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
     
     aqi_col = 'AQI'
@@ -109,7 +112,7 @@ def build_features(df, base_inputs, features_in):
             out[f] = df[aqi_col].iloc[-(win+1):-1].std()
             continue
             
-        now = datetime.now()
+        now = target_time
         f_lower = f.lower()
         if f_lower == 'hour': out[f] = now.hour
         elif f_lower in ['dayofweek', 'day_of_week']: out[f] = now.weekday()
@@ -187,7 +190,7 @@ def predict():
         # Feature Engineering
         feature_df = build_features(df, base_inputs, features_in)
 
-        # Predict
+        # Predict (Model natively predicts Next Hour AQI due to shifted target)
         prediction = model.predict(feature_df)[0]
         prediction = max(0.0, float(prediction))
         category, color = get_aqi_category(prediction)

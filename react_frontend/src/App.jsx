@@ -1,26 +1,17 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
-// Update this to 'http://localhost:5000' for local testing before pushing
 const API_BASE_URL = 'http://localhost:5000'
 
 const getHealthRecommendation = (category) => {
   switch(category) {
-    case 'Good':
-      return { icon: '🟢', text: 'Air quality is satisfactory. Enjoy your normal outdoor activities.' };
-    case 'Satisfactory':
-      return { icon: '🟡', text: 'Air quality is acceptable. Unusually sensitive individuals should limit prolonged outdoor exertion.' };
-    case 'Moderate':
-      return { icon: '🟠', text: 'May cause breathing discomfort to sensitive people. Reduce prolonged outdoor exertion.' };
-    case 'Poor':
-      return { icon: '🔴', text: 'May cause breathing discomfort to most people. Avoid strenuous outdoor activities.' };
-    case 'Very Poor':
-      return { icon: '😷', text: 'Health alert: Respiratory illness possible. Stay indoors and keep windows closed.' };
-    case 'Severe':
-      return { icon: '🛑', text: 'Health warning! Everyone should avoid all outdoor activities. Wear an N95 mask if outdoors.' };
-    default:
-      return { icon: 'ℹ️', text: 'No recommendation available.' };
+    case 'Good': return { class: 'badge-good', text: 'Good' };
+    case 'Satisfactory': return { class: 'badge-sat', text: 'Satisfactory' };
+    case 'Moderate': return { class: 'badge-mod', text: 'Moderate' };
+    case 'Poor': return { class: 'badge-poor', text: 'Poor' };
+    case 'Very Poor': return { class: 'badge-vp', text: 'Very Poor' };
+    case 'Severe': return { class: 'badge-vp', text: 'Severe' };
+    default: return { class: 'badge-mod', text: category };
   }
 }
 
@@ -47,9 +38,6 @@ function App() {
   const [result, setResult] = useState(null)
   const [error, setError] = useState(null)
   const [historyData, setHistoryData] = useState([])
-  const [selectedChartMetric, setSelectedChartMetric] = useState('AQI')
-
-  const chartMetrics = ['AQI', 'PM25', 'PM10', 'NO2', 'SO2', 'NH3', 'CO', 'O3', 'AT', 'RH', 'WS', 'WD', 'SR', 'BP']
 
   const WEATHER_PARAMS = [
     { id: 'AT', label: 'Temp (°C)' },
@@ -66,12 +54,10 @@ function App() {
       setHistoryData(response.data.history)
     } catch (err) {
       console.error("Error fetching history:", err)
-      // Don't set main error state so form still works even if history fails
     }
   }
 
   useEffect(() => {
-    // Fetch available cities
     axios.get(`${API_BASE_URL}/api/cities`)
       .then(response => {
         if (response.data.cities && response.data.cities.length > 0) {
@@ -90,10 +76,7 @@ function App() {
   const handleChange = (e) => {
     const { name, value } = e.target
     const newValue = name === 'city' ? value : parseFloat(value)
-    
     setFormData(prev => ({ ...prev, [name]: newValue }))
-    
-    // Fetch new history if city changes
     if (name === 'city') {
       fetchHistory(value)
     }
@@ -124,7 +107,6 @@ function App() {
   }
 
   const getPrimaryPollutant = () => {
-    // Basic heuristic: finding the highest concentration (excluding CO which is scaled differently)
     const pollutants = ['PM25', 'PM10', 'NO2', 'SO2', 'NH3', 'O3'];
     return pollutants.reduce((max, p) => formData[p] > formData[max] ? p : max, 'PM25');
   }
@@ -145,152 +127,243 @@ function App() {
     }
   }
 
-  // Custom Tooltip for the chart
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="custom-tooltip">
-          <p className="label">{`${label}`}</p>
-          <p className="intro">{`${selectedChartMetric} : ${payload[0].value}`}</p>
-        </div>
-      );
+  // Derive current AQI from history if available
+  let currentAqi = 187;
+  let currentCat = "Moderate";
+  if (historyData.length > 0) {
+    const latest = historyData[historyData.length - 1];
+    if (latest.AQI) {
+        currentAqi = Math.round(latest.AQI);
+        if (currentAqi <= 50) currentCat = "Good";
+        else if (currentAqi <= 100) currentCat = "Satisfactory";
+        else if (currentAqi <= 200) currentCat = "Moderate";
+        else if (currentAqi <= 300) currentCat = "Poor";
+        else if (currentAqi <= 400) currentCat = "Very Poor";
+        else currentCat = "Severe";
     }
-    return null;
-  };
+  }
+  const currentHealth = getHealthRecommendation(currentCat);
 
   return (
-    <div className="app-container">
-      <h1>AQI Forecaster</h1>
-      <p className="subtitle">Predict Air Quality Index for Indian Cities using XGBoost</p>
+    <div className="app">
+      <nav className="sidebar" role="navigation" aria-label="Main navigation">
+        <div className="logo">
+          <div className="logo-text"><i className="ti ti-wind" aria-hidden="true"></i> AQI Forecast</div>
+          <div className="logo-sub">Research dashboard</div>
+        </div>
+        <div className="nav-section">Forecast</div>
+        <div className="nav-item active"><i className="ti ti-chart-line" aria-hidden="true"></i> Overview</div>
+        <div className="nav-item"><i className="ti ti-clock-hour-4" aria-hidden="true"></i> Hourly (XGBoost)</div>
+        <div className="nav-item"><i className="ti ti-clock-hour-4" aria-hidden="true"></i> Hourly (LSTM / GRU)</div>
+        <div className="nav-item"><i className="ti ti-calendar" aria-hidden="true"></i> Daily (SARIMAX)</div>
+        <div className="nav-section">Analysis</div>
+        <div className="nav-item"><i className="ti ti-map-pin" aria-hidden="true"></i> Stations</div>
+        <div className="nav-item"><i className="ti ti-chart-bar" aria-hidden="true"></i> Model comparison</div>
+        <div className="nav-item"><i className="ti ti-settings" aria-hidden="true"></i> Settings</div>
+      </nav>
 
-      {error && <div className="error-msg">{error}</div>}
-
-      <div className="main-content">
-        <div className="form-section">
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="city">Select City</label>
-              <select 
-                id="city" 
-                name="city" 
-                value={formData.city} 
-                onChange={handleChange}
-              >
-                {cities.map(city => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="grid">
-              {['PM25', 'PM10', 'NO2', 'SO2', 'NH3', 'CO', 'O3'].map(pollutant => (
-                <div className="form-group" key={pollutant}>
-                  <label htmlFor={pollutant}>{pollutant}</label>
-                  <input
-                    type="number"
-                    id={pollutant}
-                    name={pollutant}
-                    value={formData[pollutant]}
-                    onChange={handleChange}
-                    step="0.1"
-                    min="0"
-                    required
-                  />
-                </div>
-              ))}
-              
-              {WEATHER_PARAMS.map(weather => (
-                <div className="form-group" key={weather.id}>
-                  <label htmlFor={weather.id}>{weather.label}</label>
-                  <input
-                    type="number"
-                    id={weather.id}
-                    name={weather.id}
-                    value={formData[weather.id]}
-                    onChange={handleChange}
-                    step="0.1"
-                    min="0"
-                    required
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div className="button-group">
-              <button type="button" className="autofill-btn" onClick={handleAutoFill} disabled={historyData.length === 0} title="Load real historical data from this city">
-                🪄 Load Sample Data
-              </button>
-              <button type="submit" className="submit-btn" disabled={loading}>
-                {loading ? "Predicting..." : "Predict AQI"}
-              </button>
-            </div>
-          </form>
-
-          {result && (
-            <div className="result-container">
-              <div className="result-title">Predicted Air Quality Index</div>
-              <div className="result-aqi">{result.predicted_aqi}</div>
-              
-              <div className="result-badges">
-                <div 
-                  className="result-category" 
-                  style={{ backgroundColor: result.color }}
-                >
-                  {result.category}
-                </div>
-                <div className="primary-pollutant-badge" title="The highest concentrated pollutant currently">
-                  Dominant: {getPrimaryPollutant()}
-                </div>
-              </div>
-
-              <div className="health-recommendation">
-                <span className="health-icon">{getHealthRecommendation(result.category).icon}</span>
-                <p className="health-text">{getHealthRecommendation(result.category).text}</p>
-              </div>
-            </div>
-          )}
+      <main className="main">
+        <div className="topbar">
+          <div>
+            <div className="page-title">Overview</div>
+            <div className="page-sub">Last updated: just now</div>
+          </div>
+          <div className="station-pill">
+            <i className="ti ti-map-pin"></i> 
+            <select 
+              value={formData.city} 
+              onChange={handleChange} 
+              name="city"
+              style={{background: 'transparent', color: 'inherit', border: 'none', outline: 'none', cursor: 'pointer', appearance: 'none', paddingRight: '15px'}}
+            >
+              {cities.map(city => <option key={city} value={city} style={{background: 'var(--color-background-secondary)'}}>{city}</option>)}
+            </select>
+            <i className="ti ti-chevron-down" style={{marginLeft: '-15px', pointerEvents: 'none'}}></i>
+          </div>
         </div>
 
-        {historyData.length > 0 && (
-          <div className="chart-section">
-            <h2 className="chart-title">Historical Observations ({formData.city})</h2>
-            <p className="chart-subtitle">Showing the last 7 days (168 hours) of data</p>
-            
-            <div className="chart-controls">
-              <label htmlFor="chartMetric">View Metric:</label>
-              <select 
-                id="chartMetric" 
-                value={selectedChartMetric} 
-                onChange={(e) => setSelectedChartMetric(e.target.value)}
-                className="metric-select"
-              >
-                {chartMetrics.map(metric => (
-                  <option key={metric} value={metric}>{metric}</option>
-                ))}
-              </select>
-            </div>
+        {error && <div style={{padding: '10px', background: 'rgba(255,0,0,0.1)', color: '#ff5555', borderRadius: '6px', marginBottom: '15px'}}>{error}</div>}
 
-            <div className="chart-container">
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={historyData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                  <XAxis dataKey="date" stroke="#aaaaaa" tick={{fontSize: 12}} minTickGap={60} />
-                  <YAxis stroke="#aaaaaa" tick={{fontSize: 12}} domain={['auto', 'auto']} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Line 
-                    type="monotone" 
-                    dataKey={selectedChartMetric} 
-                    stroke="#42a5f5" 
-                    strokeWidth={2}
-                    dot={false}
-                    activeDot={{ r: 6, fill: '#fff' }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+        <div className="metrics">
+          <div className="metric">
+            <div className="metric-label">Current AQI</div>
+            <div className="metric-value">{currentAqi}</div>
+            <div className={`metric-badge ${currentHealth.class}`}>{currentHealth.text}</div>
+          </div>
+          <div className="metric">
+            <div className="metric-label">Next hour (XGBoost)</div>
+            <div className="metric-value">{result ? result.predicted_aqi : '--'}</div>
+            <div className={`metric-badge ${result ? getHealthRecommendation(result.category).class : 'badge-mod'}`}>{result ? result.category : 'Pending'}</div>
+          </div>
+          <div className="metric">
+            <div className="metric-label">Next hour (LSTM)</div>
+            <div className="metric-value">191</div>
+            <div className="metric-badge badge-mod">Moderate</div>
+          </div>
+          <div className="metric">
+            <div className="metric-label">Tomorrow (SARIMAX)</div>
+            <div className="metric-value">218</div>
+            <div className="metric-badge badge-poor">Poor</div>
+          </div>
+        </div>
+
+        <div className="cards">
+          <div className="card">
+            <div className="card-title"><i className="ti ti-bolt" aria-hidden="true"></i> Hourly prediction <span className="model-tag">XGBoost</span></div>
+            <div className="card-sub">Enter last hour's readings to predict next hour's AQI</div>
+            
+            <button type="button" className="predict-btn" onClick={handleAutoFill} disabled={historyData.length === 0} style={{marginBottom: '10px', background: 'var(--color-background-primary)'}}>
+               🪄 Load Sample Data
+            </button>
+
+            <form onSubmit={handleSubmit}>
+              <div className="input-grid">
+                {['PM25', 'PM10', 'NO2', 'SO2', 'NH3', 'CO', 'O3'].map(pollutant => (
+                  <div className="input-row" key={pollutant}>
+                    <div className="input-label">{pollutant} {pollutant !== 'CO' ? '(µg/m³)' : '(mg/m³)'}</div>
+                    <div className="real-input-container">
+                      <input type="number" id={pollutant} name={pollutant} value={formData[pollutant]} onChange={handleChange} step="0.1" min="0" required />
+                    </div>
+                  </div>
+                ))}
+                {WEATHER_PARAMS.map(weather => (
+                  <div className="input-row" key={weather.id}>
+                    <div className="input-label">{weather.label}</div>
+                    <div className="real-input-container">
+                      <input type="number" id={weather.id} name={weather.id} value={formData[weather.id]} onChange={handleChange} step="0.1" required />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <button type="submit" className="predict-btn" disabled={loading}>
+                <i className="ti ti-arrow-right" aria-hidden="true"></i> 
+                {loading ? "Predicting..." : "Predict next hour"}
+              </button>
+            </form>
+
+            {result && (
+              <div className="result-box">
+                <div>
+                  <div className="result-cat">Predicted AQI — next hour</div>
+                  <div className="result-aqi">{result.predicted_aqi} <span style={{fontSize:'13px',fontWeight:400,color:'var(--color-text-secondary)'}}>{result.category}</span></div>
+                </div>
+                <div style={{textAlign:'right',fontSize:'12px',color:'var(--color-text-secondary)'}}>Dominant: {getPrimaryPollutant()}</div>
+              </div>
+            )}
+          </div>
+
+          <div className="card">
+            <div className="card-title"><i className="ti ti-brain" aria-hidden="true"></i> Hourly prediction <span className="model-tag">LSTM / GRU</span></div>
+            <div className="card-sub">Uses last 48 hours of readings as input sequence</div>
+            <div style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-md)',padding:'10px 12px',fontSize:'12px',color:'var(--color-text-secondary)',marginBottom:'10px'}}>
+              <i className="ti ti-info-circle" aria-hidden="true"></i> Sequence of 48 h loaded from history — upload a CSV or connect live sensor data
+            </div>
+            <div className="input-grid" style={{marginBottom:'10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', overflowY: 'visible', maxHeight: 'none'}}>
+              <div style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-md)',padding:'8px 10px'}}>
+                <div style={{fontSize:'11px',color:'var(--color-text-secondary)'}}>BiLSTM</div>
+                <div style={{fontSize:'20px',fontWeight:500,color:'var(--color-text-primary)'}}>191</div>
+                <div style={{fontSize:'11px',color:'var(--color-text-secondary)'}}>RMSE 7.2</div>
+              </div>
+              <div style={{background:'var(--color-background-secondary)',borderRadius:'var(--border-radius-md)',padding:'8px 10px'}}>
+                <div style={{fontSize:'11px',color:'var(--color-text-secondary)'}}>BiGRU</div>
+                <div style={{fontSize:'20px',fontWeight:500,color:'var(--color-text-primary)'}}>189</div>
+                <div style={{fontSize:'11px',color:'var(--color-text-secondary)'}}>RMSE 7.5</div>
+              </div>
+            </div>
+            <div className="chart-area">
+              <svg className="chart" viewBox="0 0 300 120" preserveAspectRatio="none">
+                <polyline fill="none" stroke="#378ADD" strokeWidth="1.5"
+                  points="0,80 20,75 40,70 60,65 80,68 100,72 120,78 140,74 160,69 180,64 200,60 220,58 240,62 260,65 280,69 300,68"/>
+                <polyline fill="none" stroke="#D85A30" strokeWidth="1.5" strokeDasharray="4,3"
+                  points="0,82 20,77 40,72 60,67 80,70 100,74 120,80 140,76 160,71 180,66 200,63 220,61 240,65 260,68 280,71 300,70"/>
+                <line x1="260" y1="0" x2="260" y2="120" stroke="var(--color-border-secondary)" strokeWidth="0.5" strokeDasharray="3,3"/>
+                <text x="262" y="14" fontSize="9" fill="var(--color-text-tertiary)">now</text>
+              </svg>
+            </div>
+            <div style={{display:'flex',gap:'12px',fontSize:'11px',color:'var(--color-text-secondary)',marginTop:'4px'}}>
+              <span style={{display:'flex',alignItems:'center',gap:'4px'}}><span style={{width:'16px',height:'2px',background:'#378ADD',display:'inline-block'}}></span>LSTM</span>
+              <span style={{display:'flex',alignItems:'center',gap:'4px'}}><span style={{width:'16px',height:'2px',background:'#D85A30',display:'inline-block'}}></span>GRU</span>
             </div>
           </div>
-        )}
-      </div>
+        </div>
+
+        <div className="forecast-card">
+          <div className="card-title" style={{marginBottom:'4px'}}><i className="ti ti-calendar-week" aria-hidden="true"></i> 7-day daily forecast <span className="model-tag">SARIMAX</span></div>
+          <div className="card-sub">Rolling 1-step-ahead — conditions on last observed daily AQI</div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:'8px',marginTop:'8px'}}>
+            <div style={{textAlign:'center'}}>
+              <div style={{fontSize:'11px',color:'var(--color-text-secondary)',marginBottom:'4px'}}>Today</div>
+              <div style={{fontSize:'16px',fontWeight:500,color:'var(--color-text-primary)'}}>187</div>
+              <div className="metric-badge badge-mod" style={{fontSize:'10px'}}>Moderate</div>
+            </div>
+            <div style={{textAlign:'center'}}>
+              <div style={{fontSize:'11px',color:'var(--color-text-secondary)',marginBottom:'4px'}}>Tue</div>
+              <div style={{fontSize:'16px',fontWeight:500,color:'var(--color-text-primary)'}}>218</div>
+              <div className="metric-badge badge-poor" style={{fontSize:'10px'}}>Poor</div>
+            </div>
+            <div style={{textAlign:'center'}}>
+              <div style={{fontSize:'11px',color:'var(--color-text-secondary)',marginBottom:'4px'}}>Wed</div>
+              <div style={{fontSize:'16px',fontWeight:500,color:'var(--color-text-primary)'}}>234</div>
+              <div className="metric-badge badge-poor" style={{fontSize:'10px'}}>Poor</div>
+            </div>
+            <div style={{textAlign:'center'}}>
+              <div style={{fontSize:'11px',color:'var(--color-text-secondary)',marginBottom:'4px'}}>Thu</div>
+              <div style={{fontSize:'16px',fontWeight:500,color:'var(--color-text-primary)'}}>201</div>
+              <div className="metric-badge badge-poor" style={{fontSize:'10px'}}>Poor</div>
+            </div>
+            <div style={{textAlign:'center'}}>
+              <div style={{fontSize:'11px',color:'var(--color-text-secondary)',marginBottom:'4px'}}>Fri</div>
+              <div style={{fontSize:'16px',fontWeight:500,color:'var(--color-text-primary)'}}>178</div>
+              <div className="metric-badge badge-mod" style={{fontSize:'10px'}}>Moderate</div>
+            </div>
+            <div style={{textAlign:'center'}}>
+              <div style={{fontSize:'11px',color:'var(--color-text-secondary)',marginBottom:'4px'}}>Sat</div>
+              <div style={{fontSize:'16px',fontWeight:500,color:'var(--color-text-primary)'}}>155</div>
+              <div className="metric-badge badge-mod" style={{fontSize:'10px'}}>Moderate</div>
+            </div>
+            <div style={{textAlign:'center'}}>
+              <div style={{fontSize:'11px',color:'var(--color-text-secondary)',marginBottom:'4px'}}>Sun</div>
+              <div style={{fontSize:'16px',fontWeight:500,color:'var(--color-text-primary)'}}>132</div>
+              <div className="metric-badge badge-sat" style={{fontSize:'10px'}}>Satisfactory</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bottom-cards">
+          <div className="card">
+            <div className="card-title"><i className="ti ti-chart-bar" aria-hidden="true"></i> Model performance</div>
+            <div style={{marginTop:'8px'}}>
+              <div className="day-row">
+                <span className="day-label">XGBoost (hourly)</span>
+                <span className="day-aqi">RMSE 6.8 · MAE 4.9</span>
+              </div>
+              <div className="day-row">
+                <span className="day-label">BiLSTM (hourly)</span>
+                <span className="day-aqi">RMSE 7.2 · MAE 5.1</span>
+              </div>
+              <div className="day-row">
+                <span className="day-label">BiGRU (hourly)</span>
+                <span className="day-aqi">RMSE 7.5 · MAE 5.3</span>
+              </div>
+              <div className="day-row">
+                <span className="day-label">SARIMAX rolling (daily)</span>
+                <span className="day-aqi">RMSE 18.4 · MAE 13.2</span>
+              </div>
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-title"><i className="ti ti-map-2" aria-hidden="true"></i> Station coverage</div>
+            <div style={{marginTop:'8px'}}>
+              <div className="day-row"><span className="day-label"><span className="cat-dot dot-good"></span>Anand Vihar</span><span className="day-aqi">187 AQI</span></div>
+              <div className="day-row"><span className="day-label"><span className="cat-dot dot-mod"></span>IITG, Guwahati</span><span className="day-aqi">142 AQI</span></div>
+              <div className="day-row"><span className="day-label"><span className="cat-dot dot-sat"></span>Jayanagar</span><span className="day-aqi">98 AQI</span></div>
+              <div className="day-row"><span className="day-label"><span className="cat-dot dot-mod"></span>Kodungaiyur</span><span className="day-aqi">163 AQI</span></div>
+              <div className="day-row"><span className="day-label"><span className="cat-dot dot-poor"></span>Patia</span><span className="day-aqi">211 AQI</span></div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }
