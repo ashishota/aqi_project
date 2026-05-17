@@ -25,6 +25,32 @@ Run:
 import os, json, joblib, warnings
 import numpy as np
 import pandas as pd
+
+# Register Anaconda DLL directories to resolve Windows TensorFlow C++ runtime import errors
+if os.name == 'nt':
+    # Force TensorFlow to use CPU in Flask to prevent DLL init conflicts with active Jupyter GPU contexts
+    os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+    os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+    
+    # Prevent Intel MKL / OpenMP duplicate DLL initialization crashes (Error code 1114) in unactivated PowerShell sessions
+    os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+    os.environ["CONDA_DLL_SEARCH_MODIFICATION_ENABLE"] = "1"
+
+    conda_base = r"C:\Users\ashis\anaconda3"
+    dll_dirs = [
+        os.path.join(conda_base, "Library", "bin"),
+        os.path.join(conda_base, "Library", "lib"),
+        os.path.join(conda_base, "bin"),
+        conda_base,
+    ]
+    for d in dll_dirs:
+        if os.path.exists(d):
+            try:
+                os.add_dll_directory(d)
+            except Exception:
+                pass
+            os.environ["PATH"] = d + os.pathsep + os.environ.get("PATH", "")
 from flask import Flask, jsonify
 from flask_cors import CORS
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
@@ -177,21 +203,17 @@ LSTM_FEATURES = {
         'is_weekend','ema_6','roll_std_24','diff_1',
     ],
     "colaba": [
-        'PM25','PM10','NO2','CO',
-        'AQI_lag1','AQI_lag2','AQI_roll3_mean','AQI_roll6_mean','AQI_roll12_mean',
-        'O3','SO2','NH3','NOx_total',
-        'hour_sin','hour_cos',
-        'PM25_lag1','RH','NO','WS','AT','SR',
-        'EthBenzene_MPXylene_ratio',
+        'PM25','PM10','NO2','CO','AQI_lag1','AQI_lag2',
+        'AQI_roll3_mean','AQI_roll6_mean','O3','SO2','NH3',
+        'NOx_total','hour_sin','hour_cos','AQI_roll12_mean',
+        'PM25_lag1','RH','NO','WS','AT','SR','EthBenzene_MPXylene_ratio',
     ],
     "jayanagar": [
-        'PM25','PM10','NO2','CO',
-        'AQI_lag1','AQI_lag2','AQI_lag3',
-        'AQI_roll3_mean','AQI_roll6_mean','AQI_roll12_mean','AQI_roll24_mean',
-        'O3','SO2','NH3','NOx_total',
-        'RH','WD_sin','WD_cos','BP',
-        'month_sin','month_cos','hour_sin','hour_cos',
-        'PM25_lag1','NO','AT',
+        'PM25','PM10','NO2','CO','AQI_lag1','AQI_lag2','AQI_lag3',
+        'AQI_roll3_mean','AQI_roll6_mean','O3','SO2','NH3',
+        'NOx_total','RH','WD_sin','WD_cos','BP',
+        'month_sin','month_cos','AQI_roll12_mean','AQI_roll24_mean',
+        'PM25_lag1','NO','AT','hour_sin','hour_cos',
     ],
 }
 
@@ -609,10 +631,17 @@ for city_key, cfg in CITY_CONFIG.items():
 
             fe = build_lstm_features(df_raw, city_key)
 
-            available_feats = [f for f in lstm_feats if f in fe.columns]
-            missing_feats   = [f for f in lstm_feats if f not in fe.columns]
-            if missing_feats:
-                print(f"  ⚠️  LSTM missing source cols: {missing_feats}")
+            if hasattr(feat_scaler, "feature_names_in_"):
+                expected_feats = list(feat_scaler.feature_names_in_)
+                missing_feats  = [f for f in expected_feats if f not in fe.columns]
+                if missing_feats:
+                    print(f"  ⚠️  LSTM missing expected scaler cols: {missing_feats}")
+                available_feats = [f for f in expected_feats if f in fe.columns]
+            else:
+                available_feats = [f for f in lstm_feats if f in fe.columns]
+                missing_feats   = [f for f in lstm_feats if f not in fe.columns]
+                if missing_feats:
+                    print(f"  ⚠️  LSTM missing source cols: {missing_feats}")
 
             data = fe[available_feats + [TARGET]].copy()
 
