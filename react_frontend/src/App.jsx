@@ -707,9 +707,17 @@ function App() {
                 <ul>
                   <li>Source: Central Pollution Control Board (CPCB)</li>
                   <li>Stations: 6 monitoring locations across India</li>
-                  <li>Coverage: Aug 2022 – Jun 2023 (hourly readings)</li>
                   <li>Features: PM2.5, PM10, NO₂, SO₂, CO, O₃, temperature, humidity</li>
                   <li>Test split: Last 15% chronologically (no leakage)</li>
+                </ul>
+                <br/>
+                <h3>Dataset Coverage by Station</h3>
+                <ul style={{listStyleType:'none',paddingLeft:0,display:'flex',flexDirection:'column',gap:'6px',marginTop:'6px'}}>
+                  {citiesList.map(c => (
+                    <li key={c.key} style={{fontSize:'13px'}}>
+                      <strong>{c.label} ({c.station}):</strong> <span style={{fontFamily:'monospace',background:'var(--bg-secondary)',padding:'2px 6px',borderRadius:'4px',color:'var(--text-primary)'}}>{c.date_range || "2022-08-01 → 2023-06-01"}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
               <div className="about-section">
