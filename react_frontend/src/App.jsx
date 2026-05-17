@@ -28,7 +28,6 @@ function App() {
   const [cities, setCities] = useState([])
   const [formData, setFormData] = useState({
     city: '',
-    previous_aqi: 150.0,
     PM25: 10.0,
     PM10: 10.0,
     NO2: 10.0,
@@ -98,8 +97,7 @@ function App() {
         SO2: sample.SO2 || prev.SO2,
         NH3: sample.NH3 || prev.NH3,
         CO: sample.CO || prev.CO,
-        O3: sample.O3 || prev.O3,
-        previous_aqi: sample.AQI || prev.previous_aqi
+        O3: sample.O3 || prev.O3
       }));
     }
   }
@@ -179,19 +177,6 @@ function App() {
                   />
                 </div>
               ))}
-              <div className="form-group">
-                <label htmlFor="previous_aqi">Previous Day AQI</label>
-                <input
-                  type="number"
-                  id="previous_aqi"
-                  name="previous_aqi"
-                  value={formData.previous_aqi}
-                  onChange={handleChange}
-                  step="0.1"
-                  min="0"
-                  required
-                />
-              </div>
             </div>
 
             <div className="button-group">
@@ -231,8 +216,8 @@ function App() {
 
         {historyData.length > 0 && (
           <div className="chart-section">
-            <h2 className="chart-title">Historical Training Data ({formData.city})</h2>
-            <p className="chart-subtitle">Showing the final 1 year of the model's dataset</p>
+            <h2 className="chart-title">Historical Observations ({formData.city})</h2>
+            <p className="chart-subtitle">Showing the last 7 days (168 hours) of data</p>
             
             <div className="chart-controls">
               <label htmlFor="chartMetric">View Metric:</label>
