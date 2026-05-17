@@ -34,7 +34,13 @@ function App() {
     SO2: 10.0,
     NH3: 10.0,
     CO: 10.0,
-    O3: 10.0
+    O3: 10.0,
+    AT: 25.0,
+    RH: 50.0,
+    WS: 1.0,
+    WD: 180.0,
+    SR: 100.0,
+    BP: 1000.0
   })
   
   const [loading, setLoading] = useState(false)
@@ -43,7 +49,16 @@ function App() {
   const [historyData, setHistoryData] = useState([])
   const [selectedChartMetric, setSelectedChartMetric] = useState('AQI')
 
-  const chartMetrics = ['AQI', 'PM25', 'PM10', 'NO2', 'SO2', 'NH3', 'CO', 'O3']
+  const chartMetrics = ['AQI', 'PM25', 'PM10', 'NO2', 'SO2', 'NH3', 'CO', 'O3', 'AT', 'RH', 'WS', 'WD', 'SR', 'BP']
+
+  const WEATHER_PARAMS = [
+    { id: 'AT', label: 'Temp (°C)' },
+    { id: 'RH', label: 'Humidity (%)' },
+    { id: 'WS', label: 'Wind (m/s)' },
+    { id: 'WD', label: 'Wind Dir (°)' },
+    { id: 'SR', label: 'Solar Rad' },
+    { id: 'BP', label: 'Pressure (hPa)' }
+  ];
 
   const fetchHistory = async (city) => {
     try {
@@ -97,7 +112,13 @@ function App() {
         SO2: sample.SO2 || prev.SO2,
         NH3: sample.NH3 || prev.NH3,
         CO: sample.CO || prev.CO,
-        O3: sample.O3 || prev.O3
+        O3: sample.O3 || prev.O3,
+        AT: sample.AT || prev.AT,
+        RH: sample.RH || prev.RH,
+        WS: sample.WS || prev.WS,
+        WD: sample.WD || prev.WD,
+        SR: sample.SR || prev.SR,
+        BP: sample.BP || prev.BP
       }));
     }
   }
@@ -170,6 +191,22 @@ function App() {
                     id={pollutant}
                     name={pollutant}
                     value={formData[pollutant]}
+                    onChange={handleChange}
+                    step="0.1"
+                    min="0"
+                    required
+                  />
+                </div>
+              ))}
+              
+              {WEATHER_PARAMS.map(weather => (
+                <div className="form-group" key={weather.id}>
+                  <label htmlFor={weather.id}>{weather.label}</label>
+                  <input
+                    type="number"
+                    id={weather.id}
+                    name={weather.id}
+                    value={formData[weather.id]}
                     onChange={handleChange}
                     step="0.1"
                     min="0"

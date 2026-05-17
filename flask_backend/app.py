@@ -42,7 +42,7 @@ DATA_REGISTRY = {
 # ──────────────────────────────────────────────
 # Features List
 # ──────────────────────────────────────────────
-BASE_FEATURES = ["PM25", "PM10", "NO2", "SO2", "NH3", "CO", "O3"]
+BASE_FEATURES = ["PM25", "PM10", "NO2", "SO2", "NH3", "CO", "O3", "AT", "RH", "WS", "WD", "SR", "BP"]
 LAG_FEATURES = ["lag_1", "lag_2", "lag_3", "lag_7", "lag_14", "lag_30"]
 ROLLING_FEATURES = ["roll_mean_7", "roll_std_7", "roll_mean_30"]
 CALENDAR_FEATURES = ["day_of_week", "month", "day_of_year", "quarter"]
@@ -102,11 +102,11 @@ def build_features(df, base_inputs, features_in):
             
         if 'roll_mean' in f.lower():
             win = parse_number(f)
-            out[f] = df[aqi_col].rolling(win).mean().iloc[-1]
+            out[f] = df[aqi_col].iloc[-(win+1):-1].mean()
             continue
         if 'roll_std' in f.lower():
             win = parse_number(f)
-            out[f] = df[aqi_col].rolling(win).std().iloc[-1]
+            out[f] = df[aqi_col].iloc[-(win+1):-1].std()
             continue
             
         now = datetime.now()
@@ -166,8 +166,9 @@ def predict():
         
         # Extract base inputs
         base_inputs = {}
+        default_vals = {"AT": 25.0, "RH": 50.0, "WS": 1.0, "WD": 180.0, "SR": 100.0, "BP": 1000.0}
         for feature in BASE_FEATURES:
-            base_inputs[feature] = float(req_data.get(feature, 10.0))
+            base_inputs[feature] = float(req_data.get(feature, default_vals.get(feature, 10.0)))
 
         # Load Model
         model = get_model(city)
