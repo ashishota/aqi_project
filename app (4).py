@@ -36,13 +36,13 @@ CORS(app)
 
 # =============================================================================
 # CITY REGISTRY
+# All paths are relative to the directory where app.py lives.
+# Update BASE_DIR if you keep datasets / models in a different folder.
 # =============================================================================
 
-BASE_DIR       = os.path.dirname(os.path.abspath(__file__))
-DATA_DIR       = os.path.join(BASE_DIR, "data")
-XGB_MODELS_DIR = os.path.join(BASE_DIR, "..", "XGBOOST", "saved_models")
-XGB_FEATS_DIR  = os.path.join(BASE_DIR, "..", "XGBOOST", "outputs")
-LSTM_BASE_DIR  = os.path.join(BASE_DIR, "..", "LSTM")
+BASE_DIR    = os.path.dirname(os.path.abspath(__file__))
+MODELS_DIR  = os.path.join(BASE_DIR, "saved_models")
+DATA_DIR    = os.path.join(BASE_DIR)          # CSVs sit next to app.py
 
 CITY_CONFIG = {
     "anandvihar": {
@@ -59,8 +59,8 @@ CITY_CONFIG = {
         "feat_scaler" : "anandvihar_feature_scaler.pkl",
         "tgt_scaler"  : "anandvihar_target_scaler.pkl",
         # ARIMA / SARIMAX metrics from notebooks (hardcoded)
-        "arima_metrics"  : {"MAE": 38.2, "RMSE": 51.4, "R2": 0.71, "MAPE": 14.2},
-        "sarimax_metrics": {"MAE": 32.6, "RMSE": 44.1, "R2": 0.78, "MAPE": 11.8},
+        "arima_metrics"  : {"MAE": None, "RMSE": None, "R2": None, "MAPE": None},
+        "sarimax_metrics": {"MAE": None, "RMSE": None, "R2": None, "MAPE": None},
     },
     "colaba": {
         "label"   : "Colaba",
@@ -73,8 +73,8 @@ CITY_CONFIG = {
         "gru_model"   : "colaba_gru_model.keras",
         "feat_scaler" : "colaba_feature_scaler.pkl",
         "tgt_scaler"  : "colaba_target_scaler.pkl",
-        "arima_metrics"  : {"MAE": 29.1, "RMSE": 40.2, "R2": 0.68, "MAPE": 13.4},
-        "sarimax_metrics": {"MAE": 24.8, "RMSE": 35.6, "R2": 0.74, "MAPE": 10.9},
+        "arima_metrics"  : {"MAE": None, "RMSE": None, "R2": None, "MAPE": None},
+        "sarimax_metrics": {"MAE": None, "RMSE": None, "R2": None, "MAPE": None},
     },
     "iitg": {
         "label"   : "IITG",
@@ -83,12 +83,13 @@ CITY_CONFIG = {
         "xgb_model"   : "iitg_xgboost_aqi.pkl",
         "xgb_feats"   : "IITG_xgboost_features.json",
         "xgb_target"  : "AQI_next",
+        # ✅ UPDATED: LSTM/GRU files now available
         "lstm_model"  : "iitg_lstm_model.keras",
         "gru_model"   : "iitg_gru_model.keras",
         "feat_scaler" : "iitg_feature_scaler.pkl",
         "tgt_scaler"  : "iitg_target_scaler.pkl",
-        "arima_metrics"  : {"MAE": 35.4, "RMSE": 47.8, "R2": 0.69, "MAPE": 15.1},
-        "sarimax_metrics": {"MAE": 30.2, "RMSE": 42.3, "R2": 0.74, "MAPE": 12.6},
+        "arima_metrics"  : {"MAE": None, "RMSE": None, "R2": None, "MAPE": None},
+        "sarimax_metrics": {"MAE": None, "RMSE": None, "R2": None, "MAPE": None},
     },
     "jayanagar": {
         "label"   : "Jayanagar",
@@ -97,12 +98,13 @@ CITY_CONFIG = {
         "xgb_model"   : "jayanagar_xgboost_aqi.pkl",
         "xgb_feats"   : "Jayanagar_xgboost_features.json",
         "xgb_target"  : "AQI_next",
-        "lstm_model"  : "best_lstm.keras",
-        "gru_model"   : "best_gru.keras",
+        # ✅ UPDATED: LSTM/GRU files now available
+        "lstm_model"  : "jayanagar_lstm_model.keras",
+        "gru_model"   : "jayanagar_gru_model.keras",
         "feat_scaler" : "jayanagar_feature_scaler.pkl",
         "tgt_scaler"  : "jayanagar_target_scaler.pkl",
-        "arima_metrics"  : {"MAE": 22.8, "RMSE": 31.4, "R2": 0.72, "MAPE": 12.3},
-        "sarimax_metrics": {"MAE": 19.4, "RMSE": 27.1, "R2": 0.78, "MAPE": 10.2},
+        "arima_metrics"  : {"MAE": None, "RMSE": None, "R2": None, "MAPE": None},
+        "sarimax_metrics": {"MAE": None, "RMSE": None, "R2": None, "MAPE": None},
     },
     "kodungaiyur": {
         "label"   : "Kodungaiyur",
@@ -111,12 +113,13 @@ CITY_CONFIG = {
         "xgb_model"   : "Kodungaiyur_xgboost_aqi.pkl",
         "xgb_feats"   : "Kodungaiyur_xgboost_features.json",
         "xgb_target"  : "AQI_next",
+        # ✅ UPDATED: LSTM/GRU files now available
         "lstm_model"  : "kodungaiyur_lstm_model.keras",
         "gru_model"   : "kodungaiyur_gru_model.keras",
         "feat_scaler" : "kodungaiyur_feature_scaler.pkl",
         "tgt_scaler"  : "kodungaiyur_target_scaler.pkl",
-        "arima_metrics"  : {"MAE": 31.6, "RMSE": 43.2, "R2": 0.70, "MAPE": 13.8},
-        "sarimax_metrics": {"MAE": 27.3, "RMSE": 38.4, "R2": 0.75, "MAPE": 11.4},
+        "arima_metrics"  : {"MAE": None, "RMSE": None, "R2": None, "MAPE": None},
+        "sarimax_metrics": {"MAE": None, "RMSE": None, "R2": None, "MAPE": None},
     },
     "patia": {
         "label"   : "Patia",
@@ -125,17 +128,20 @@ CITY_CONFIG = {
         "xgb_model"   : "patia_xgboost_aqi.pkl",
         "xgb_feats"   : "Patia_xgboost_features.json",
         "xgb_target"  : "AQI_next",
+        # ✅ UPDATED: LSTM/GRU files now available
         "lstm_model"  : "patia_lstm_model.keras",
         "gru_model"   : "patia_gru_model.keras",
         "feat_scaler" : "patia_feature_scaler.pkl",
         "tgt_scaler"  : "patia_target_scaler.pkl",
-        "arima_metrics"  : {"MAE": 26.4, "RMSE": 36.1, "R2": 0.73, "MAPE": 11.9},
-        "sarimax_metrics": {"MAE": 22.7, "RMSE": 31.8, "R2": 0.79, "MAPE": 10.0},
+        "arima_metrics"  : {"MAE": None, "RMSE": None, "R2": None, "MAPE": None},
+        "sarimax_metrics": {"MAE": None, "RMSE": None, "R2": None, "MAPE": None},
     },
 }
 
 # =============================================================================
 # LSTM FEATURE LISTS — per city
+# Sourced from each city's iitg_features.json (or equivalent) at training time.
+# look_back is also city-specific; defaults to LOOK_BACK_DEFAULT if not set.
 # =============================================================================
 
 LOOK_BACK_DEFAULT = 48
@@ -148,6 +154,7 @@ LSTM_FEATURES = {
         'NOx_total','hour_sin','hour_cos','AQI_roll12_mean',
         'PM25_lag1','RH','NO','WS','AT','SR','Toluene_Benzene_ratio',
     ],
+    # ✅ UPDATED: IITG feature list from iitg_features.json
     "iitg": [
         'PM25','PM10','CO','NO2','AQI_lag1','AQI_lag2',
         'AQI_roll3_mean','AQI_roll6_mean','O3','SO2','NH3',
@@ -157,6 +164,8 @@ LSTM_FEATURES = {
         'PM25_lag1','RH_PM25_interact','NO','NOx','VOC_total',
         'RF_flag','RF_lag1',
     ],
+    # ✅ UPDATED: Patia feature list extracted from patia_feature_scaler.pkl
+    # Input shape confirmed (None, 48, 34) from patia_lstm_model.keras
     "patia": [
         'PM25','PM10','Benzene','Eth-Benzene','MP-Xylene',
         'lag_1','lag_6','lag_24',
@@ -167,6 +176,8 @@ LSTM_FEATURES = {
         'is_weekend','ema_6','roll_std_24','diff_1',
         'AT_RH_stability','BTEX_total',
     ],
+    # ✅ UPDATED: Kodungaiyur feature list extracted from kodungaiyur_feature_scaler.pkl
+    # Input shape confirmed (None, 48, 27) from kodungaiyur_lstm_model.keras
     "kodungaiyur": [
         'PM25','PM10',
         'lag_1','lag_6','lag_24',
@@ -176,6 +187,8 @@ LSTM_FEATURES = {
         'hour_sin','hour_cos','month_sin','month_cos','dow_sin','dow_cos',
         'is_weekend','ema_6','roll_std_24','diff_1',
     ],
+    # ✅ UPDATED: Colaba feature list extracted from colaba_feature_scaler.pkl
+    # Input shape confirmed (None, 48, 22) from colaba_lstm_model.keras
     "colaba": [
         'PM25','PM10','NO2','CO',
         'AQI_lag1','AQI_lag2','AQI_roll3_mean','AQI_roll6_mean','AQI_roll12_mean',
@@ -184,6 +197,8 @@ LSTM_FEATURES = {
         'PM25_lag1','RH','NO','WS','AT','SR',
         'EthBenzene_MPXylene_ratio',
     ],
+    # ✅ UPDATED: Jayanagar feature list extracted from jayanagar_feature_scaler.pkl
+    # Input shape confirmed (None, 48, 26) from jayanagar_lstm_model.keras
     "jayanagar": [
         'PM25','PM10','NO2','CO',
         'AQI_lag1','AQI_lag2','AQI_lag3',
@@ -195,20 +210,24 @@ LSTM_FEATURES = {
     ],
 }
 
+# Per-city look_back override (defaults to LOOK_BACK_DEFAULT = 48 if not listed)
 LSTM_LOOK_BACK = {
-    "anandvihar" : 48,
-    "iitg"       : 48,
-    "patia"      : 48,
-    "kodungaiyur": 48,
-    "colaba"     : 48,
-    "jayanagar"  : 48,
+    "anandvihar": 48,
+    "iitg"      : 48,   # confirmed from iitg_features.json
+    "patia"        : 48,   # confirmed from model input shape (None, 48, 34)
+    "kodungaiyur"  : 48,   # confirmed from model input shape (None, 48, 27)
+    "colaba"       : 48,   # confirmed from model input shape (None, 48, 22)
+    "jayanagar"    : 48,   # confirmed from model input shape (None, 48, 26)
 }
 
 # =============================================================================
 # FEATURE ENGINEERING — per-city XGBoost
+# Each function takes a raw DataFrame (Timestamp as index) and returns a
+# fully-engineered DataFrame ready for XGBoost, with an AQI_next target col.
 # =============================================================================
 
 def _season(month):
+    """Map month → 0-based season integer (Winter=0, Spring=1, Summer=2, Monsoon=3, Autumn=4)."""
     return {12:0,1:0,2:0, 3:1,4:1,5:1, 6:2,7:2, 8:3,9:3,10:3, 11:4}.get(month, 0)
 
 def _aqi_cat_enc(aqi):
@@ -261,6 +280,7 @@ def engineer_xgb_colaba(df):
 def engineer_xgb_iitg(df):
     fe = df.copy()
     fe["AQI_next"] = fe[TARGET].shift(-1)
+    # AT is missing from IITG CSV — fill with 0 as placeholder
     if "AT" not in fe.columns:
         fe["AT"] = 0.0
     for h in [1,2,3,6,12,24,48]:
@@ -288,6 +308,7 @@ def engineer_xgb_iitg(df):
 def engineer_xgb_jayanagar(df):
     fe = df.copy()
     fe["AQI_next"] = fe[TARGET].shift(-1)
+    # Daily lags (Jayanagar used daily data)
     for lag in [1,2,3,4,5,6,7,9,14,21,30]:
         fe[f"lag_{lag}"] = fe[TARGET].shift(lag)
     for w in [7,14,30]:
@@ -377,15 +398,23 @@ XGB_ENGINEER = {
 
 # =============================================================================
 # LSTM FEATURE ENGINEERING — shared utility
+# Builds derived columns that LSTM models expect (lags, rolling means, cyclical
+# encodings, interaction terms).  Each city's LSTM_FEATURES list then selects
+# only the columns that were actually used during training.
 # =============================================================================
 
 def build_lstm_features(df_raw, city_key):
+    """
+    Applies all possible LSTM-style feature transformations to df_raw.
+    Returns a DataFrame containing the union of all features any city might need.
+    Missing source columns are silently skipped (filled with 0).
+    """
     fe = df_raw.copy()
 
-    # Lag features
+    # ── Lag features ──────────────────────────────────────────────────────────
     fe["AQI_lag1"]  = fe[TARGET].shift(1)
     fe["AQI_lag2"]  = fe[TARGET].shift(2)
-    fe["AQI_lag3"]  = fe[TARGET].shift(3)
+    fe["AQI_lag3"]  = fe[TARGET].shift(3)   # needed by Jayanagar
     fe["AQI_lag24"] = fe[TARGET].shift(24)
 
     if "PM25" in fe.columns:
@@ -393,17 +422,17 @@ def build_lstm_features(df_raw, city_key):
     else:
         fe["PM25_lag1"] = 0.0
 
-    # Rolling means
+    # ── Rolling means ─────────────────────────────────────────────────────────
     for w in [3, 6, 12, 24]:
         fe[f"AQI_roll{w}_mean"] = fe[TARGET].shift(1).rolling(w).mean()
 
-    # Cyclical time encodings
+    # ── Cyclical time encodings ───────────────────────────────────────────────
     fe["hour_sin"]  = np.sin(2 * np.pi * fe.index.hour / 24)
     fe["hour_cos"]  = np.cos(2 * np.pi * fe.index.hour / 24)
     fe["month_sin"] = np.sin(2 * np.pi * fe.index.month / 12)
     fe["month_cos"] = np.cos(2 * np.pi * fe.index.month / 12)
 
-    # Wind direction cyclical encoding
+    # ── Wind direction cyclical encoding ──────────────────────────────────────
     if "WD" in fe.columns:
         fe["WD_sin"] = np.sin(2 * np.pi * fe["WD"] / 360)
         fe["WD_cos"] = np.cos(2 * np.pi * fe["WD"] / 360)
@@ -411,7 +440,7 @@ def build_lstm_features(df_raw, city_key):
         fe["WD_sin"] = 0.0
         fe["WD_cos"] = 0.0
 
-    # Interaction / derived pollutant features
+    # ── Interaction / derived pollutant features ──────────────────────────────
     if "NO" in fe.columns and "NO2" in fe.columns:
         fe["NOx_total"] = fe["NO"] + fe["NO2"]
     else:
@@ -422,15 +451,18 @@ def build_lstm_features(df_raw, city_key):
     else:
         fe["Toluene_Benzene_ratio"] = 0.0
 
-    # IITG-specific features
+    # ── IITG-specific features ────────────────────────────────────────────────
+    # RH_PM25_interact: humidity × fine particulate interaction
     if "RH" in fe.columns and "PM25" in fe.columns:
         fe["RH_PM25_interact"] = fe["RH"] * fe["PM25"]
     else:
         fe["RH_PM25_interact"] = 0.0
 
+    # VOC_total: sum of available VOC species
     voc_cols = [c for c in ["Toluene", "Benzene", "Xylene", "Ethylbenzene"] if c in fe.columns]
     fe["VOC_total"] = fe[voc_cols].sum(axis=1) if voc_cols else 0.0
 
+    # RF_flag / RF_lag1: rainfall indicator (1 if RF > 0)
     if "RF" in fe.columns:
         fe["RF_flag"] = (fe["RF"] > 0).astype(float)
         fe["RF_lag1"] = fe["RF_flag"].shift(1)
@@ -438,40 +470,51 @@ def build_lstm_features(df_raw, city_key):
         fe["RF_flag"] = 0.0
         fe["RF_lag1"] = 0.0
 
+    # NOx column (some cities log this directly; others derive from NO+NO2)
     if "NOx" not in fe.columns:
         fe["NOx"] = fe.get("NOx_total", 0.0)
 
+    # BP (barometric pressure) — pass-through if present, else 0
     if "BP" not in fe.columns:
         fe["BP"] = 0.0
 
-    # Patia-specific features
+    # ── Patia-specific features ───────────────────────────────────────────────
+    # AQI lag/roll using Patia's naming convention (lag_1, lag_6, lag_24)
     fe["lag_1"]  = fe[TARGET].shift(1)
     fe["lag_6"]  = fe[TARGET].shift(6)
     fe["lag_24"] = fe[TARGET].shift(24)
 
+    # Rolling stats with Patia naming (roll_mean_6, roll_mean_24, roll_std_24)
     fe["roll_mean_6"]  = fe[TARGET].shift(1).rolling(6).mean()
     fe["roll_mean_24"] = fe[TARGET].shift(1).rolling(24).mean()
     fe["roll_std_24"]  = fe[TARGET].shift(1).rolling(24).std()
 
+    # Exponential moving averages (ema_6, ema_24)
     fe["ema_6"]  = fe[TARGET].shift(1).ewm(span=6,  adjust=False).mean()
     fe["ema_24"] = fe[TARGET].shift(1).ewm(span=24, adjust=False).mean()
 
+    # First difference (diff_1): rate of change in AQI
     fe["diff_1"] = fe[TARGET].diff(1)
 
+    # Day-of-week cyclical encoding (dow_sin, dow_cos)
     fe["dow_sin"] = np.sin(2 * np.pi * fe.index.dayofweek / 7)
     fe["dow_cos"] = np.cos(2 * np.pi * fe.index.dayofweek / 7)
 
+    # Weekend flag
     fe["is_weekend"] = (fe.index.dayofweek >= 5).astype(int)
 
+    # AT_RH_stability: temperature-humidity stability index (AT / (RH + 1))
     if "AT" in fe.columns and "RH" in fe.columns:
         fe["AT_RH_stability"] = fe["AT"] / (fe["RH"] + 1)
     else:
         fe["AT_RH_stability"] = 0.0
 
+    # BTEX_total: sum of Benzene, Toluene, Eth-Benzene, MP-Xylene (BTEX group)
     btex_cols = [c for c in ["Benzene", "Toluene", "Eth-Benzene", "MP-Xylene"] if c in fe.columns]
     fe["BTEX_total"] = fe[btex_cols].sum(axis=1) if btex_cols else 0.0
 
-    # Colaba-specific features
+    # ── Colaba-specific features ──────────────────────────────────────────────
+    # EthBenzene_MPXylene_ratio: Ethylbenzene / (MP-Xylene + epsilon)
     if "Eth-Benzene" in fe.columns and "MP-Xylene" in fe.columns:
         fe["EthBenzene_MPXylene_ratio"] = fe["Eth-Benzene"] / (fe["MP-Xylene"] + 1e-6)
     else:
@@ -484,7 +527,7 @@ def build_lstm_features(df_raw, city_key):
 # STARTUP — load everything once
 # =============================================================================
 
-CITY_DATA = {}
+CITY_DATA = {}   # populated below
 
 print("=" * 60)
 print("  AQI Multi-City Forecasting System — Loading...")
@@ -520,7 +563,7 @@ for city_key, cfg in CITY_CONFIG.items():
         "date_range"     : None,
     }
 
-    # Load raw CSV
+    # ── Load raw CSV ──────────────────────────────────────────────────────────
     csv_path = os.path.join(DATA_DIR, cfg["csv"])
     if not os.path.exists(csv_path):
         print(f"  ⚠️  CSV not found: {csv_path} — skipping city")
@@ -532,9 +575,9 @@ for city_key, cfg in CITY_CONFIG.items():
     entry["df_raw"]     = df_raw
     print(f"  ✅ CSV loaded  {df_raw.shape}  {entry['date_range']}")
 
-    # XGBoost
-    xgb_path  = os.path.join(XGB_MODELS_DIR, cfg["xgb_model"])
-    feat_path = os.path.join(XGB_FEATS_DIR, cfg["xgb_feats"])
+    # ── XGBoost ───────────────────────────────────────────────────────────────
+    xgb_path  = os.path.join(MODELS_DIR, cfg["xgb_model"])
+    feat_path = os.path.join(MODELS_DIR, cfg["xgb_feats"])
 
     if os.path.exists(xgb_path) and os.path.exists(feat_path):
         try:
@@ -567,24 +610,13 @@ for city_key, cfg in CITY_CONFIG.items():
         except Exception as e:
             print(f"  ❌ XGBoost failed: {e}")
     else:
-        print(f"  ⚠️  XGBoost model/features not found — skipping ({xgb_path}, {feat_path})")
+        print(f"  ⚠️  XGBoost model/features not found — skipping")
 
-    # LSTM & GRU
-    lstm_city_folder = {
-        "anandvihar" : "Anand_Vihar",
-        "colaba"     : "Colaba",
-        "iitg"       : "IITG",
-        "jayanagar"  : "Jayanagar",
-        "kodungaiyur": "Kodungaiyur",
-        "patia"      : "Patia"
-    }.get(city_key)
-
-    lstm_saved_models_dir = os.path.join(LSTM_BASE_DIR, lstm_city_folder, "saved_models")
-
-    lstm_path  = os.path.join(lstm_saved_models_dir, cfg["lstm_model"])  if cfg["lstm_model"]  else None
-    gru_path   = os.path.join(lstm_saved_models_dir, cfg["gru_model"])   if cfg["gru_model"]   else None
-    fscl_path  = os.path.join(lstm_saved_models_dir, cfg["feat_scaler"]) if cfg["feat_scaler"] else None
-    tscl_path  = os.path.join(lstm_saved_models_dir, cfg["tgt_scaler"])  if cfg["tgt_scaler"]  else None
+    # ── LSTM & GRU ────────────────────────────────────────────────────────────
+    lstm_path  = os.path.join(MODELS_DIR, cfg["lstm_model"])  if cfg["lstm_model"]  else None
+    gru_path   = os.path.join(MODELS_DIR, cfg["gru_model"])   if cfg["gru_model"]   else None
+    fscl_path  = os.path.join(MODELS_DIR, cfg["feat_scaler"]) if cfg["feat_scaler"] else None
+    tscl_path  = os.path.join(MODELS_DIR, cfg["tgt_scaler"])  if cfg["tgt_scaler"]  else None
 
     dl_files_ready = (
         lstm_path and gru_path and fscl_path and tscl_path and
@@ -607,6 +639,7 @@ for city_key, cfg in CITY_CONFIG.items():
                 print(f"  ⚠️  No LSTM_FEATURES defined for {city_key} — skipping DL models")
                 raise ValueError(f"LSTM_FEATURES not defined for {city_key}")
 
+            # Apply unified feature engineering
             fe = build_lstm_features(df_raw, city_key)
 
             available_feats = [f for f in lstm_feats if f in fe.columns]
@@ -919,4 +952,4 @@ def history(city_key):
 # =============================================================================
 
 if __name__ == "__main__":
-    app.run(debug=True, use_reloader=False, host='0.0.0.0', port=5000)
+    app.run(debug=True, port=5000)
