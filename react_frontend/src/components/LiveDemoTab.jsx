@@ -17,7 +17,7 @@ function LiveDemoTab({
           <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'14px',flexWrap:'wrap',gap:'10px'}}>
             <div className="card-title" style={{margin:0}}>Live prediction demo — {demoSample?.label || "Anand Vihar"}, {demoSample?.station || "Delhi"}</div>
             <div className="demo-controls">
-              <span className="sample-info">Test sample #{demoSample?.sample_index !== undefined ? demoSample.sample_index + 1 : 1} of 2,310</span>
+              <span className="sample-info">Test sample #{demoSample?.sample_index !== undefined ? demoSample.sample_index + 1 : 1} of {demoSample?.total_samples ? demoSample.total_samples.toLocaleString() : "2,310"}</span>
               <button className="ctrl-btn" onClick={() => fetchDemoSample(selectedCityDemo, 'index', Math.max(0, (demoSample?.sample_index || 1) - 1))} disabled={demoLoading}>← prev</button>
               <button className="ctrl-btn" onClick={() => fetchDemoSample(selectedCityDemo, 'index', (demoSample?.sample_index || 0) + 1)} disabled={demoLoading}>next →</button>
               <button className="ctrl-btn primary" onClick={() => fetchDemoSample(selectedCityDemo, 'random')} disabled={demoLoading}>↻ random</button>

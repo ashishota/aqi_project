@@ -169,7 +169,7 @@ def predict_random(city_key):
     n = len(d["X_test"]) if d["X_test"] is not None else len(d["X_xgb_test"])
     if n == 0:
         return jsonify({"error": "No test data available for this city"}), 500
-    return _predict_at(city_key, d, int(np.random.randint(0, n)))
+    return _predict_at(city_key, d, int(np.random.randint(0, n)), n)
 
 
 @app.route("/predict/index/<city_key>/<int:idx>", methods=["GET"])
@@ -180,7 +180,7 @@ def predict_at_index(city_key, idx):
     n = len(d["X_test"]) if d["X_test"] is not None else len(d["X_xgb_test"])
     if idx < 0 or idx >= n:
         return jsonify({"error": f"Index must be 0 to {n - 1}"}), 400
-    return _predict_at(city_key, d, idx)
+    return _predict_at(city_key, d, idx, n)
 
 
 @app.route("/history/<city_key>", methods=["GET"])
@@ -215,7 +215,7 @@ def history(city_key):
 # Internal helpers
 # ---------------------------------------------------------------------------
 
-def _predict_at(city_key: str, d: dict, idx: int):
+def _predict_at(city_key: str, d: dict, idx: int, total_samples: int):
     predictions = []
     actual      = None
     timestamp   = None
@@ -263,6 +263,7 @@ def _predict_at(city_key: str, d: dict, idx: int):
         "label"          : d["label"],
         "station"        : d["station"],
         "sample_index"   : idx,
+        "total_samples"  : total_samples,
         "timestamp"      : timestamp,
         "actual_aqi"     : actual,
         "actual_category": actual_cat,

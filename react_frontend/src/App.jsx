@@ -109,6 +109,7 @@ function App() {
         label: citiesList.find(c => c.key === cityKey)?.label || cityKey,
         station: citiesList.find(c => c.key === cityKey)?.station || "",
         sample_index: idx || Math.floor(Math.random() * 2000),
+        total_samples: 2310,
         timestamp: "2023-11-14 14:00:00",
         actual_aqi: actual,
         actual_category: AQI_CAT(actual).cat,
