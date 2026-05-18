@@ -508,6 +508,19 @@ def build_lstm_features(df_raw, city_key):
 
 CITY_DATA = {}
 
+# On Render Free Tier, loading all 6 cities (18 models) exceeds the 512MB RAM limit.
+# Allow filtering active cities via ACTIVE_CITIES env var (e.g. "anandvihar,colaba").
+# If running on Render and ACTIVE_CITIES is not set, default to 2 cities to prevent OOM crash.
+if os.environ.get("RENDER") == "true":
+    active_cities_env = os.environ.get("ACTIVE_CITIES", "anandvihar,colaba")
+else:
+    active_cities_env = os.environ.get("ACTIVE_CITIES")
+
+if active_cities_env:
+    active_keys = [k.strip().lower() for k in active_cities_env.split(",") if k.strip()]
+    CITY_CONFIG = {k: v for k, v in CITY_CONFIG.items() if k.lower() in active_keys}
+    print(f"  [Notice] Filtering active cities for memory constraint: {list(CITY_CONFIG.keys())}")
+
 print("=" * 60)
 print("  AQI Multi-City Forecasting System — Loading...")
 print("=" * 60)
