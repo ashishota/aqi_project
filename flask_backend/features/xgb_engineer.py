@@ -39,16 +39,41 @@ def _aqi_cat_enc(aqi: float) -> int:
 # ---------------------------------------------------------------------------
 
 def engineer_xgb_anandvihar(df):
-    fe = df.copy()
-    fe["AQI_next"]     = fe[TARGET].shift(-1)
-    fe["AQI_lag_72h"]  = fe[TARGET].shift(72)
-    fe["AQI_lag_168h"] = fe[TARGET].shift(168)
-    doy = fe.index.dayofyear
-    fe["DayOfYear"] = doy
-    fe["doy_sin"]   = np.sin(2 * np.pi * doy / 365)
-    fe["doy_cos"]   = np.cos(2 * np.pi * doy / 365)
-    return fe.dropna(subset=["AQI_next", "AQI_lag_72h", "AQI_lag_168h"])
+    fe  = df.copy()
+    idx = fe.index
+    fe["AQI_next"] = fe[TARGET].shift(-1)
 
+    # Lags
+    for h in [1, 2, 3, 6, 12, 24, 48]:
+        fe[f"lag_{h}h"] = fe[TARGET].shift(h)
+
+    # Rolling stats
+    for w in [3, 6, 24]:
+        fe[f"roll_mean_{w}h"] = fe[TARGET].shift(1).rolling(w).mean()
+        fe[f"roll_std_{w}h"]  = fe[TARGET].shift(1).rolling(w).std()
+
+    # Raw calendar integers
+    fe["hour"]        = idx.hour
+    fe["day_of_week"] = idx.dayofweek
+    fe["month"]       = idx.month
+    fe["day_of_year"] = idx.dayofyear
+
+    # Cyclic calendar
+    fe["hour_sin"]  = np.sin(2 * np.pi * idx.hour        / 24)
+    fe["hour_cos"]  = np.cos(2 * np.pi * idx.hour        / 24)
+    fe["month_sin"] = np.sin(2 * np.pi * idx.month       / 12)
+    fe["month_cos"] = np.cos(2 * np.pi * idx.month       / 12)
+    fe["dow_sin"]   = np.sin(2 * np.pi * idx.dayofweek   / 7)
+    fe["dow_cos"]   = np.cos(2 * np.pi * idx.dayofweek   / 7)
+    fe["doy_sin"]   = np.sin(2 * np.pi * idx.dayofyear   / 365)
+    fe["doy_cos"]   = np.cos(2 * np.pi * idx.dayofyear   / 365)
+
+    # Categoricals
+    fe["is_weekend"]  = (idx.dayofweek >= 5).astype(int)
+    fe["season_enc"]  = idx.month.map(_season)
+    fe["aqi_cat_enc"] = fe[TARGET].map(_aqi_cat_enc)
+
+    return fe.dropna(subset=["AQI_next", "lag_48h"])
 
 def engineer_xgb_colaba(df):
     fe  = df.copy()
