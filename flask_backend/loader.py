@@ -61,7 +61,7 @@ def _load_xgboost(city_key: str, cfg: dict, df_raw: pd.DataFrame, entry: dict) -
     feat_path = os.path.join(XGB_FEATS_DIR,  cfg["xgb_feats"])
 
     if not (os.path.exists(xgb_path) and os.path.exists(feat_path)):
-        print(f"  ⚠️  XGBoost model/features not found — skipping ({xgb_path})")
+        print(f"    XGBoost model/features not found — skipping ({xgb_path})")
         return
 
     try:
@@ -74,7 +74,7 @@ def _load_xgboost(city_key: str, cfg: dict, df_raw: pd.DataFrame, entry: dict) -
         available  = [c for c in xgb_feat_cols if c in df_test.columns]
         missing    = [c for c in xgb_feat_cols if c not in df_test.columns]
         if missing:
-            print(f"  ⚠️  XGB missing cols (skipped): {missing}")
+            print(f"    XGB missing cols (skipped): {missing}")
 
         X_xgb_test = df_test[available]
         y_xgb_test = df_test["AQI_next"].values
@@ -89,9 +89,9 @@ def _load_xgboost(city_key: str, cfg: dict, df_raw: pd.DataFrame, entry: dict) -
             "y_pred_xgb"     : y_pred_xgb,
             "y_true_xgb"     : y_xgb_test,
         })
-        print(f"  ✅ XGBoost loaded  test={len(X_xgb_test):,} samples")
+        print(f"   XGBoost loaded  test={len(X_xgb_test):,} samples")
     except Exception as exc:
-        print(f"  ❌ XGBoost failed: {exc}")
+        print(f"   XGBoost failed: {exc}")
 
 
 def _load_lstm_gru(city_key: str, cfg: dict, df_raw: pd.DataFrame, entry: dict) -> None:
@@ -107,7 +107,7 @@ def _load_lstm_gru(city_key: str, cfg: dict, df_raw: pd.DataFrame, entry: dict) 
     }
 
     if not all(p and os.path.exists(p) for p in paths.values()):
-        print("  ⏳ LSTM/GRU model files not present yet — will activate on next restart")
+        print("   LSTM/GRU model files not present yet — will activate on next restart")
         return
 
     try:
@@ -135,7 +135,7 @@ def _load_lstm_gru(city_key: str, cfg: dict, df_raw: pd.DataFrame, entry: dict) 
             available_feats = [f for f in lstm_feats if f in fe.columns]
             missing_feats   = [f for f in lstm_feats if f not in fe.columns]
         if missing_feats:
-            print(f"  ⚠️  LSTM missing cols: {missing_feats}")
+            print(f"    LSTM missing cols: {missing_feats}")
 
         data            = fe[available_feats + [TARGET]].copy()
         scaled_features = feat_scaler.transform(data[available_feats])
@@ -175,9 +175,9 @@ def _load_lstm_gru(city_key: str, cfg: dict, df_raw: pd.DataFrame, entry: dict) 
             "y_pred_gru"     : y_pred_gru,
             "y_true_lstm"    : y_true_lstm,
         })
-        print(f"  ✅ LSTM + GRU loaded  test={len(X_test):,} samples  look_back={look_back}")
+        print(f"   LSTM + GRU loaded  test={len(X_test):,} samples  look_back={look_back}")
     except Exception as exc:
-        print(f"  ❌ LSTM/GRU failed: {exc}")
+        print(f"   LSTM/GRU failed: {exc}")
 
 
 # ---------------------------------------------------------------------------
@@ -200,7 +200,7 @@ def load_all_cities() -> dict:
 
         csv_path = os.path.join(DATA_DIR, cfg["csv"])
         if not os.path.exists(csv_path):
-            print(f"  ⚠️  CSV not found: {csv_path} — skipping city")
+            print(f"    CSV not found: {csv_path} — skipping city")
             continue
 
         df_raw = pd.read_csv(csv_path, parse_dates=["Timestamp"])
@@ -209,7 +209,7 @@ def load_all_cities() -> dict:
         entry = _empty_entry(cfg)
         entry["date_range"] = f"{df_raw.index.min().date()} → {df_raw.index.max().date()}"
         entry["df_raw"]     = df_raw
-        print(f"  ✅ CSV loaded  {df_raw.shape}  {entry['date_range']}")
+        print(f"   CSV loaded  {df_raw.shape}  {entry['date_range']}")
 
         _load_xgboost(city_key, cfg, df_raw, entry)
         _load_lstm_gru(city_key, cfg, df_raw, entry)
@@ -217,7 +217,7 @@ def load_all_cities() -> dict:
         city_data[city_key] = entry
 
     print(f"\n{'=' * 60}")
-    print(f"  ✅ Ready. Cities loaded: {list(city_data.keys())}")
+    print(f"   Ready. Cities loaded: {list(city_data.keys())}")
     print(f"{'=' * 60}\n")
 
     return city_data
